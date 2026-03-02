@@ -2,6 +2,7 @@ import numpy as np
 import scipy.sparse as sp
 import scipy.sparse.linalg as spla
 import matplotlib.pyplot as plt
+from PoissonSolver2D import PoissonSolver2D_MatrixInverse
 
 # --- Solver mit Neumann am oberen Rand (y = Ly) ---
 def solve_poisson_sigma_mixedBC(nx, ny, Lx, Ly, sigma, f, phi_dirichlet, top_flux):
@@ -133,22 +134,26 @@ def phi_D(x, y):  # Dirichlet unten/links/rechts
 def qN_top(x):    # Neumann-Flux oben: qN = 0 (isoliert)
     return 0.0
 
-phi = solve_poisson_sigma_mixedBC(nx, ny, Lx, Ly, sigma, f, phi_D, qN_top)
+#phi = solve_poisson_sigma_mixedBC(nx, ny, Lx, Ly, sigma, f, phi_D, qN_top)
+
+bc = {'left': 20.0, 'right': 20.0, 'bottom': 20.0, 'top': 20}
+ps = PoissonSolver2D_MatrixInverse(N=nx, L=Lx, sigma=sigma, Q=f, phi_init=20*np.ones((ny, nx)), bc_values=bc)
+phi = ps.solve()
 
 # --- Visualisierung ---
 extent = [0, Lx, 0, Ly]
 
 fig, ax = plt.subplots()
 
-im = ax.imshow(phi, origin='lower', extent=extent, cmap='inferno', aspect='auto')
-cb = fig.colorbar(im)
-cb.set_label('Temperatur [°C]')
+#im = ax.imshow(phi, origin='lower', extent=extent, cmap='inferno', aspect='auto')
+#cb = fig.colorbar(im)
+#cb.set_label('Temperatur [°C]')
+
+cs = ax.contourf(np.linspace(0, Lx, nx), np.linspace(0, Ly, ny), phi,
+                 cmap="inferno", linewidths=0.6, levels=40)
+#ax.clabel(cs, inline=True, fontsize=7, fmt='%.2f')
 ax.set_title("Temperaturfeld um das erdverlegte Kabel [°C]")
 ax.set_xlabel('x [m]')
 ax.set_ylabel('y [m]')
 ax.set_aspect("equal")
-
-#cs = ax.contour(np.linspace(0, Lx, nx), np.linspace(0, Ly, ny), phi,
-#                 colors='white', linewidths=0.6, levels=12, alpha=0.7)
-#ax.clabel(cs, inline=True, fontsize=7, fmt='%.2f')
 plt.show()

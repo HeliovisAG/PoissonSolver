@@ -1,6 +1,4 @@
 import numpy as np
-#import matplotlib.pyplot as plt
-#import matplotlib.animation as animation
 
 class PoissonSolver2D:
     """
@@ -9,7 +7,7 @@ class PoissonSolver2D:
         div(k * grad phi) = -Q
 
     Unterstützt:
-    - variable Wärmeleitfähigkeit k(x,y)
+    - variable Leitfähigkeit k(x,y)
     - Dirichlet-Ränder (fixe Temperatur)
     - Neumann-Ränder (adiabatisch: dT/dn = 0)
     """
@@ -22,6 +20,8 @@ class PoissonSolver2D:
                  bc_values):
         """
         Parameter:
+            N               Anzahl der Gitterpunkte pro Richtung
+            L               Länge der Seite des quadratischen Gebiets in m
             k               Matrix mit der ortsabhängigen Leitfähigkeit
             Q               Matrix mit dem Quellenfeld
             phi_init        Matrix mit den Startwerten für das Potentialfeld
