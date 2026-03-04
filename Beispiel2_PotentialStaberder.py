@@ -1,73 +1,52 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-from PoissonSolver2D import *
+from poissonSolverMatrix2D import PoissonSolverMatrix2D
 
-N = 200
-L = 2             # Ausdehnung in m
-k_soil=50e-3,     # Elektrische Leitfähigkeit Boden (lehmig) in S/m
-I = 40000               # Strom der über den Staberder eingespeist wird
+N = 400
+L = 20
+h = L/N             # örtliche Auflösung
+ps = PoissonSolverMatrix2D(N=N, L=L)
+X = ps.X
+Y = ps.Y
 
-k = np.ones((N, N))*k_soil  # Erdreich
-x = np.linspace(0, L, N)
-y = np.linspace(0, L, N)
-X, Y = np.meshgrid(x, y, indexing="ij")
+sigma_soil=50e-3    # Elektrische Leitfähigkeit Boden (lehmig) in S/m
+sigmaCu = 5.8e7     # Elektrische Leitfähigkeit von Cu bei 20°C in 1/Ohm m
+I = 20000           # Strom der über den Staberder eingespeist wird
 
 # Definition des Staberders
-xE = 1      # x-Position des Erders in m
-LE = 1.3            # Länge des Erders in m
-dE = 0.02         # Dicke des Erders in m
-mask = (X>=xE) & (X<=xE+dE) & (Y>=L-LE) & (Y<=L)
-k[mask] = 358              # Leitfähigkeit von Kupfer in S/m
+xE = 10             # x-Position des Erders in m
+LE = 5             # Länge des Erders in m
+dE = 0.05              # Dicke des Erders in m
+ds = 20*h           # Dicke der nichtleitenden Oberflöche in m
 
-Q = np.zeros((N, N))                # Quellmatrix
+# Leitfähigkeitsmatrix
+ps.sigma = ps.sigma*sigma_soil                                
+mask = (X>=xE) & (X<=xE+dE) & (Y>=L-LE-ds) & (Y<=L-ds)
+ps.sigma[mask] = sigmaCu                       
+
+mask_surf = Y > L-ds                      # dünne isolierende Schicht an der Oberfläche, adiabatische Randbedingung
+ps.sigma[mask_surf] = 1e-8
+
+# Quellenmatrix
 V = LE*dE**2          # Volumen des Erders in m³
-Q[mask] = -I/V  # A/m³    
+ps.Q[mask] = I/V  # A/m³
 
-# Startwert
-phi0 = np.ones((N, N)) * 20.0
+# Randbedingungen
+def phi_left(x, y):  # Dirichlet links
+    return 0.0
+def phi_right(x, y):  # Dirichlet rechts
+    return 0.0
+def phi_bottom(x, y):  # Dirichlet unten
+    return 0.0
+def phi_top(x, y):  # Dirichlet oben
+    return 0.0
+bc = {'left':phi_left, 'right':phi_right, 'bottom':phi_bottom, 'top':phi_top}
 
-bc_type = {
-    "left": "dirichlet",
-    "right": "dirichlet",
-    "bottom": "dirichlet",
-    "top": "neumann"
-}
+ps.solve(bc)            # Berechnet das Potential durch Lösen der Poissongleichung
+ps.fieldvektor()        # Berechnet die Feldstärke aus dem Potential
 
-bc_values = {
-    "left": 0.0,
-    "right": 0.0,
-    "bottom": 0.0,
-    "top": None
-}
-
-solver = PoissonSolver2D(
-    N, L,
-    k_field=k,
-    Q_field=Q,
-    phi_init=phi0,
-    bc_type=bc_type,
-    bc_values=bc_values
-)
-
+# --- Visualisierung ---
 fig, ax = plt.subplots()
-
-result = solver.solve(omega=1, max_iter=30000, tol=1e-4)
-print(result["converged"], result["iterations"])
-
-Phi = result["phi"]
-h = L/N
-dPhidy, dPhidx = np.gradient(Phi, h, h)
-
-Ex = -dPhidx
-Ey = -dPhidy
-E = np.sqrt(Ex**2 + Ey**2)
-
-cf = ax.contourf(X, Y, Phi, levels=40, cmap="inferno")
-#cf = ax.contourf(X, Y, E, levels=40, cmap="inferno")
-fig.colorbar(cf, ax=ax, label="Potential [V]")
-ax.set_aspect("equal")
-ax.set_xlabel("x [m]")
-ax.set_ylabel("y [m]")
-ax.set_title("Potentialfeld")
+ps.drawImage(ps.phi, fig, ax, 'Elektrostatisches Potential V')
+#ps.drawContour(phi, ax)
 plt.show()
