@@ -2,8 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from poissonSolverMatrix2D import PoissonSolverMatrix2D
 
-N = 400
-L = 200
+N = 800
+L = 400
 h = L/N             # örtliche Auflösung
 dspx = 2          # Dicke der nichtleitenden Oberfläche in pixel
 ds = dspx*h         # Dicke in m
@@ -17,21 +17,13 @@ ps = PoissonSolverMatrix2D(N=N, L=L)
 X = ps.X
 Y = ps.Y
 
-# Leiter1
 x0 = L/2
-y0 = L/2-Le
+y0 = L-ds-Le
 ps.sigma[int(x0/h),int(y0/h)] = sigmaCu
 ps.Q[int(x0/h),int(y0/h)]  = I/h**3            
-
-# Leiter2
-x0 = L/2
-y0 = L/2+Le
-ps.sigma[int(x0/h),int(y0/h)] = sigmaCu
-ps.Q[int(x0/h),int(y0/h)]  = I/h**3            
-
 
 # dünne isolierende Schicht, adiabatische Randbedingung
-#ps.sigma[:, N-dspx:N] = 1e-8                # oben
+ps.sigma[:, N-dspx:N] = 1e-8                # oben
 ps.sigma[:dspx, :] = 1e-8             # links   
 ps.sigma[N-dspx:, :] = 1e-8         # rechts
 #ps.sigma[:, :dspx] = 1e-8         # unten
@@ -54,11 +46,12 @@ E, Ex, Ey = ps.E, ps.Ex, ps.Ey
 
 # --- Visualisierung ---
 fig, ax = plt.subplots()
-ps.drawImage(phi, fig, ax, '')
+#ps.drawImage(phi, fig, ax, '')
+ps.drawContour(phi, fig, ax, "Potential [V]", levels=40)
 
 #ps.drawContour(Ey, ax, levels=40)
-E_s = np.abs(Ex[N//2,:])
-E_s = E_s[dspx:N-dspx]
+E_s = np.abs(Ex[N-dspx,:])
+E_s = E_s[2*dspx:N-2*dspx]
 fig, ax = plt.subplots()
-ax.plot(np.linspace(0, L, N-2*dspx), E_s, label='E_y')
+ax.plot(np.linspace(0, L, N-4*dspx), E_s, label='E_s')
 plt.show()
