@@ -119,9 +119,9 @@ class PoissonSolverMatrix2D:
         ax.set_ylabel('x [m]')
         ax.set_aspect("equal")
 
-    def drawContour(self, field, ax):
+    def drawContour(self, field, ax, levels=40):
         #isolevels = [20, 40, 60, 70]
-        cs = ax.contourf(np.linspace(0, self.L, self.N), np.linspace(0, self.L, self.N), field, cmap="inferno", levels=40)
+        cs = ax.contourf(np.linspace(0, self.L, self.N), np.linspace(0, self.L, self.N), field, cmap="inferno", levels=levels)
         #ax.clabel(cs, inline=True, fontsize=7, fmt='%.2f')
         ax.set_xlabel('y [m]')
         ax.set_ylabel('x [m]')
