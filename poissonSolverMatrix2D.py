@@ -120,7 +120,6 @@ class PoissonSolverMatrix2D:
         ax.set_aspect("equal")
 
     def drawContour(self, field, fig, ax, titel:str, levels=40):
-        #isolevels = [20, 40, 60, 70]
         cs = ax.contourf(np.linspace(0, self.L, self.N), np.linspace(0, self.L, self.N), field, cmap="inferno", levels=levels)
         cb = fig.colorbar(cs)
         cb.set_label(titel)

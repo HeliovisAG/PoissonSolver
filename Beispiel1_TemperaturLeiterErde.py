@@ -14,14 +14,14 @@ ps.sigma = ps.sigma*1                                # Wärmeleitfähigkeit Bode
 # Leiter
 x0 = 3
 y0 = L-0.8
-I = 774.0
+I = 700.0
 A = 240e-6       # Querschnitt in m2
 sigma20 = 5.8e7    # El. Leitfähigkeit von Cu bei 20°C in 1/Ohm m
 alpha = 3.93e-4        # Temperaturkoeffizient von Cu
 Topmax = 90
 
 R20 = 1/sigma20/A  # Widerstand in Ohm/m bei 20°C
-R_DC = R20*(1-alpha*(Topmax-20))
+R_DC = R20*(1+alpha*(Topmax-20))
 R_AC = R_DC * 1.03                         # Skin- und Proximity Effekt mit 3% angenommen
 P = R_AC*I**2       # Leistung in W/m
 
