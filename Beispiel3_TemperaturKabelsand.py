@@ -59,7 +59,7 @@ addXLPECable(ps, x1, y1, A, d, r_ins, r_pvc, I)
 addXLPECable(ps, x2, y2, A, d, r_ins, r_pvc, I)
 addXLPECable(ps, x3, y3, A, d, r_ins, r_pvc, I)
 
-ps.sigma[Y > L*0.99] = 1e-8     # dünne isolierende Schicht oben, adiabatische Randbedingung 
+ps.sigma[Y > L*0.99] = 1e-2    # dünne isolierende Schicht oben, adiabatische Randbedingung 
 #ps.sigma[X < L*0.01] = 1e-8    # dünne isolierende Schicht links, adiabatische Randbedingung 
 #ps.sigma[X > L*0.99] = 1e-8    # dünne isolierende Schicht rechts, adiabatische Randbedingung 
 
